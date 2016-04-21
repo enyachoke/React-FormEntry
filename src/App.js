@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import Immutable from 'immutable'
 var form =  require("json!./form.json");
 import {
   BasicForm,
@@ -10,10 +11,118 @@ export default class App extends Component {
   constructor() {
     super();
     this.state = {
-          serialization: ''
+          serialization: '',
+          undoCache: Immutable.List()
         };
     this.serialization = this.serialization.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
+    this.addRepeating = this.addRepeating.bind(this);
+    console.log(form.pages);
+    self = this;
+    form.pages.forEach(function (page) {
+      page.sections.forEach(function (section) {
+        section.questions.forEach(function (question) {
+          if(question.type==='obsGroup' && question.questionOptions.rendering==='repeating'){
+            self.state['added'+ question.id] = Immutable.List()
+          }
+        })
+      })
+    })
+  }
+  createChoices(answers){
+    var choices = [];
+    var i;
+    for (i = 0; i < answers.length; i++) {
+      var answer = answers[i];
+      choices.push({text: answer.label, value: answer.concept});
+    }
+    return choices;
+  }
+  addRepeating(question) {
+    var self = this;
+    var questionId = question.id
+    var personIndex = this.state['added'+questionId].size;
+    var personKey = 'questions'+'[' + personIndex + ']';
+    var name = questionId+'[' + personKey
+    var concept = questionId+'[concept]';
+    var moods = [
+      { text: 'Happy' , value: 'happy' },
+      { text: 'Aloof' , value: 'aloof' }
+    ];
+    var update = function() {
+      self.forceUpdate();
+    };
+    var fields = []
+    {question.questions.map(function(q, key) {
+       var qId = q.id;
+       if(q.questionOptions.rendering==='number'){
+       fields.push(<p key={key}>
+          <label htmlFor={qId}>{q.label}</label>
+            <InputField
+              type='number'
+              placeholder=''
+              onChange={update}
+              id={name + '['+qId+']'}
+             name={name + '['+qId+']'}
+            validation='required'/>
+       </p>)
+     }else if (q.questionOptions.rendering==='date') {
+         fields.push(<p key={key}>
+          <label htmlFor={q.id}>{q.label}</label>
+            <InputField
+              type='text'
+              placeholder=''
+              onChange={update}
+              id={name + '['+qId+']'}
+             name={name + '['+qId+']'}
+            validation='required'/>
+       </p>)
+     }else if (q.questionOptions.rendering==='select') {
+         var choices=self.createChoices(q.questionOptions.answers);
+        fields.push( <p key={key}>
+          <label htmlFor={qId}>{q.label}</label>
+            <SelectField
+              options={choices}
+              type='text'
+              placeholder=''
+              onChange={update}
+              id={name + '['+qId+']'}
+             name={name + '['+qId+']'}
+            validation='required'/>
+       </p>)
+       }else {
+         fields.push(<p key={key}>
+          <label htmlFor={qId}>{q.label}</label>
+            <InputField
+              type='text'
+              placeholder=''
+              onChange={update}
+              id={name + '['+qId+']'}
+             name={name + '['+qId+']'}
+            validation='required'/>
+       </p>)
+       }
+    })}
+    var person = (
+      <div key={personIndex} className='person'>
+      <InputField
+        type='hidden'
+        value={question.questionOptions.concept}
+        placeholder=''
+        onChange={update}
+        id={concept}
+       name={concept}
+      validation='required'/>
+        {fields}
+      </div>
+    );
+    this.setState(function(prev) {
+      var newState = {
+        undoCache: prev.undoCache.push(this.state['added'+questionId]),
+      }
+      newState['added'+questionId] = prev['added'+questionId].push(person)
+      return newState;
+    }, update);
   }
   serialization() {
         if (this.refs.myForm) {
@@ -36,6 +145,84 @@ export default class App extends Component {
               event.preventDefault();
             }
   render() {
+    function renderGroup(question){
+      var self = this;
+      var fields = []
+      var questionId = question.id
+      var personIndex = 'n';
+      var personKey = 'questions'+'[' + 0 + ']';
+      var name = questionId+'[' + personKey
+      var concept = questionId+'[concept]';
+      var moods = [
+        { text: 'Happy' , value: 'happy' },
+        { text: 'Aloof' , value: 'aloof' }
+      ];
+
+      question.questions.map(function(q, key) {
+         var qId = q.id;
+         if(q.questionOptions.rendering==='number'){
+         fields.push(<p key={key}>
+            <label htmlFor={qId}>{q.label}</label>
+              <InputField
+                type='number'
+                placeholder=''
+              {...attrs}
+                id={name + '['+qId+']'}
+               name={name + '['+qId+']'}
+              validation='required'/>
+         </p>)
+       }else if (q.questionOptions.rendering==='date') {
+           fields.push(<p key={key}>
+            <label htmlFor={q.id}>{q.label}</label>
+              <InputField
+                type='text'
+                placeholder=''
+                {...attrs}
+                id={name + '['+qId+']'}
+               name={name + '['+qId+']'}
+              validation='required'/>
+         </p>)
+       }else if (q.questionOptions.rendering==='select') {
+           var choices=createChoices(q.questionOptions.answers);
+          fields.push( <p key={key}>
+            <label htmlFor={qId}>{q.label}</label>
+              <SelectField
+                options={choices}
+                type='text'
+                placeholder=''
+                {...attrs}
+                id={name + '['+qId+']'}
+               name={name + '['+qId+']'}
+              validation='required'/>
+         </p>)
+         }else {
+           fields.push(<p key={key}>
+            <label htmlFor={qId}>{q.label}</label>
+              <InputField
+                type='text'
+                placeholder=''
+                {...attrs}
+                id={name + '['+qId+']'}
+               name={name + '['+qId+']'}
+              validation='required'/>
+         </p>)
+         }
+      })
+      var person = (
+        <div key={personIndex} className='person'>
+        <InputField
+          type='hidden'
+          value={question.questionOptions.concept}
+          placeholder=''
+          {...attrs}
+          id={concept}
+         name={concept}
+        validation='required'/>
+          {fields}
+        </div>
+      );
+      return person;
+    }
     function renderQuestion(k,question){
       var input = '';
       if(question.questionOptions.rendering==='number'){
@@ -129,16 +316,16 @@ export default class App extends Component {
                    return (<div key={k}></div>);
                  }else if (question.type==='obsGroup' && question.questionOptions.rendering==='group') {
                     return (<div key={k}>Group
-                        {question.questions.map(function(q, m) {
-                          return (renderQuestion(m,q))
-                        })}
-
+                        {renderGroup(question)}
                     </div>)
                   }else if (question.type==='obsGroup' && question.questionOptions.rendering==='repeating') {
                     return (<div key={k}>Repeating Group
-                        {question.questions.map(function(q, m) {
-                          return (renderQuestion(m,q))
-                        })}
+                      <button onClick={()=>self.addRepeating(question)} type='button'>Add</button>
+                      {
+                        self.state['added'+ question.id].map(function(person) {
+                        return person;
+                      })}
+
 
                     </div>)
                   }

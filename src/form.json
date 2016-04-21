@@ -9,6 +9,7 @@
       "isExpanded": true,
       "questions": [{
           "type": "obsGroup",
+          "id" : "CurrentTBRegimen",
           "label": "Current TB Regimen",
           "questionOptions": {
             "concept": "a8afdb8c-1350-11df-a1f1-0026b9348838",
@@ -164,6 +165,7 @@
           }
         }, {
           "type": "obsGroup",
+          "id": "TBAdherence",
           "label": "Patient adherence to TB medications",
           "questionOptions": {
             "concept": "2a4b87dd-977d-4ce8-a321-1f13df4a31b2",
