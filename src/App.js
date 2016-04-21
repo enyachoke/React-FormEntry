@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import Immutable from 'immutable'
+require("css!./react-simpletabs.css");
+import Tabs from 'react-simpletabs'
 var form =  require("json!./form.json");
 import {
   BasicForm,
@@ -296,10 +298,11 @@ export default class App extends Component {
        };
     return (
       <BasicForm ref='myForm' onKeyUp={this.onChange} onSubmit={this.onSubmit}>
-      <div>
+      <Tabs>
         {form.pages.map(function(page, i) {
         return (
-          <div key={i}>
+          <Tabs.Panel key={i} title={page.label}>
+          <div >
             {page.sections.map(function(section, j) {
               return (<div key={j}>{section.label}
                 {section.questions.map(function(question, k) {
@@ -333,9 +336,10 @@ export default class App extends Component {
               </div>);
             })}
           </div>
+          </Tabs.Panel>
         );
       })}
-      </div>
+    </Tabs>
       <div className='serialization'>
              <pre>
                {serialization}

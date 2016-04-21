@@ -546,5 +546,8 @@
         "validators": []
       }]
     }]
-  }]
+  },{
+    "label": "Page 2",
+    "sections": []
+    }]
 }
