@@ -36,6 +36,60 @@ export default class App extends Component {
               event.preventDefault();
             }
   render() {
+    function renderQuestion(k,question){
+      var input = '';
+      if(question.questionOptions.rendering==='number'){
+        input = <p key={k}>
+         <label htmlFor={question.id}>{question.label}</label>
+           <InputField
+             {...attrs}
+             type='number'
+             placeholder=''
+             id={question.id}
+             name={question.id}
+           validation='required'/>
+      </p>
+      }else if (question.questionOptions.rendering==='date') {
+        input = <p key={k}>
+         <label htmlFor={question.id}>{question.label}</label>
+           <InputField
+             {...attrs}
+             type='text'
+             placeholder=''
+             id={question.id}
+             name={question.id}
+           validation='required'/>
+      </p>
+      }else if (question.questionOptions.rendering==='select') {
+        var choices=createChoices(question.questionOptions.answers);
+        input = <p key={k}>
+         <label htmlFor={question.id}>{question.label}</label>
+           <SelectField
+             {...attrs}
+             options={choices}
+             type='text'
+             placeholder=''
+             id={question.id}
+             name={question.id}
+           validation='required'/>
+      </p>
+      }else {
+        input = <p key={k}>
+         <label htmlFor={question.id}>{question.label}</label>
+           <InputField
+             {...attrs}
+             type='text'
+             placeholder=''
+             id={question.id}
+             name={question.id}
+           validation='required'/>
+      </p>
+      }
+      return input;
+    }
+    function renderObsGroup(k,question) {
+      console.log(question);
+    }
     function createChoices(answers){
       var choices = [];
       var i;
@@ -62,55 +116,32 @@ export default class App extends Component {
             {page.sections.map(function(section, j) {
               return (<div key={j}>{section.label}
                 {section.questions.map(function(question, k) {
-                  var input = '';
-                  if(question.questionOptions.rendering==='number'){
-                    input = <p key={k}>
-                     <label htmlFor={question.id}>{question.label}</label>
-                       <InputField
-                         {...attrs}
-                         type='number'
-                         placeholder=''
-                         id={question.id}
-                         name={question.id}
-                       validation='required'/>
-                  </p>
-                  }else if (question.questionOptions.rendering==='date') {
-                    input = <p key={k}>
-                     <label htmlFor={question.id}>{question.label}</label>
-                       <InputField
-                         {...attrs}
-                         type='text'
-                         placeholder=''
-                         id={question.id}
-                         name={question.id}
-                       validation='required'/>
-                  </p>
-                  }else if (question.questionOptions.rendering==='select') {
-                    var choices=createChoices(question.questionOptions.answers);
-                    input = <p key={k}>
-                     <label htmlFor={question.id}>{question.label}</label>
-                       <SelectField
-                         {...attrs}
-                         options={choices}
-                         type='text'
-                         placeholder=''
-                         id={question.id}
-                         name={question.id}
-                       validation='required'/>
-                  </p>
-                  }else {
-                    input = <p key={k}>
-                     <label htmlFor={question.id}>{question.label}</label>
-                       <InputField
-                         {...attrs}
-                         type='text'
-                         placeholder=''
-                         id={question.id}
-                         name={question.id}
-                       validation='required'/>
-                  </p>
+                  if(question.type==='obs'){
+                    return (renderQuestion(k,question));
+                  }else if(question.type==='encounterDatetime'){
+                    return (<div key={k}></div>);
+                  }else if (question.type==='encounterProvider') {
+                    return (<div key={k}></div>);
                   }
-             return (input);
+                 else if (question.type==='encounterLocation') {
+                   return (<div key={k}></div>);
+                 }else if (question.type==='personAttribute') {
+                   return (<div key={k}></div>);
+                 }else if (question.type==='obsGroup' && question.questionOptions.rendering==='group') {
+                    return (<div key={k}>Group
+                        {question.questions.map(function(q, m) {
+                          return (renderQuestion(m,q))
+                        })}
+
+                    </div>)
+                  }else if (question.type==='obsGroup' && question.questionOptions.rendering==='repeating') {
+                    return (<div key={k}>Repeating Group
+                        {question.questions.map(function(q, m) {
+                          return (renderQuestion(m,q))
+                        })}
+
+                    </div>)
+                  }
            })}
               </div>);
             })}
