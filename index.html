@@ -1,0 +1,83 @@
+<!doctype html>
+<html>
+
+<head>
+  <title>Sample App</title>
+  <style>
+    body {
+      font-family: 'Lato', sans-serif;
+      font-size: 14px;
+      font-weight: 300;
+    }
+
+    label {
+      font-weight: 700;
+    }
+
+    select,
+    input,
+    textarea {
+      font-size: 16px;
+      border: 1px solid #CCC;
+      display: block;
+      margin: 10px 0;
+      font-family: 'Lato', sans-serif;
+      outline: 0;
+    }
+
+    input.invalid {
+      border: 1px solid red;
+    }
+
+    input.valid {
+      border: 1px solid blue;
+    }
+    
+    .err-msg {
+      color: red;
+    }
+
+    .inline input {
+      display: inline;
+      margin: 0 10px;
+    }
+
+    textarea,
+    input[type="text"],
+    input[type="number"],
+    input[type="email"] {
+      padding: 10px;
+      width: 300px;
+    }
+
+    .person {
+      padding: 20px;
+      background: #f1f1f1;
+      margin: 10px 0;
+    }
+
+    .some-test-fields {
+      width: 45%;
+      float: left;
+    }
+
+    .serialization {
+      position: fixed;
+      width: 45%;
+      right: 0;
+      top: 20px;
+    }
+
+    .buttons {
+      clear: both;
+    }
+  </style>
+</head>
+
+<body>
+  <div id='root'>
+  </div>
+  <script src="/static/bundle.js"></script>
+</body>
+
+</html>
