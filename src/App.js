@@ -197,7 +197,23 @@ export default class App extends Component {
                name={name + '['+qId+']'}
               validation='required'/>
          </p>)
-         }else {
+         }
+         else if (q.questionOptions.rendering==='multiCheckbox') {
+           var choices=createChoices(q.questionOptions.answers);
+          fields.push( <p key={key}>
+            <label htmlFor={qId}>{q.label}</label>
+              <SelectField
+                options={choices}
+                 multiple={true}
+                type='text'
+                placeholder=''
+                {...attrs}
+                id={name + '['+qId+']'}
+               name={name + '['+qId+']'}
+              validation='required'/>
+         </p>)
+         }
+         else {
            fields.push(<p key={key}>
             <label htmlFor={qId}>{q.label}</label>
               <InputField
@@ -262,7 +278,24 @@ export default class App extends Component {
              name={question.id}
            validation='required'/>
       </p>
-      }else {
+      }
+      else if (question.questionOptions.rendering==='multiCheckbox') {
+        console.log('Multi')
+        var choices=createChoices(question.questionOptions.answers);
+        input = <p key={k}>
+         <label htmlFor={question.id}>{question.label}</label>
+           <SelectField
+              multiple={true}
+             {...attrs}
+             options={choices}
+             type='text'
+             placeholder=''
+             id={question.id}
+             name={question.id}
+           validation='required'/>
+      </p>
+      }
+      else {
         input = <p key={k}>
          <label htmlFor={question.id}>{question.label}</label>
            <InputField
