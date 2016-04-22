@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Immutable from 'immutable'
 require("css!./react-simpletabs.css");
 import Tabs from 'react-simpletabs'
-var form =  require("json!./form.json");
+var form =  require("json!./adult-form.json");
 import {
   BasicForm,
   InputField,
