@@ -19,7 +19,6 @@ export default class App extends Component {
     this.serialization = this.serialization.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
     this.addRepeating = this.addRepeating.bind(this);
-    console.log(form.pages);
     self = this;
     form.pages.forEach(function (page) {
       page.sections.forEach(function (section) {
@@ -47,63 +46,13 @@ export default class App extends Component {
     var personKey = 'questions'+'[' + personIndex + ']';
     var name = questionId+'[' + personKey
     var concept = questionId+'[concept]';
-    var moods = [
-      { text: 'Happy' , value: 'happy' },
-      { text: 'Aloof' , value: 'aloof' }
-    ];
     var update = function() {
       self.forceUpdate();
     };
     var fields = []
     {question.questions.map(function(q, key) {
-       var qId = q.id;
-       if(q.questionOptions.rendering==='number'){
-       fields.push(<p key={key}>
-          <label htmlFor={qId}>{q.label}</label>
-            <InputField
-              type='number'
-              placeholder=''
-              onChange={update}
-              id={name + '['+qId+']'}
-             name={name + '['+qId+']'}
-            validation='required'/>
-       </p>)
-     }else if (q.questionOptions.rendering==='date') {
-         fields.push(<p key={key}>
-          <label htmlFor={q.id}>{q.label}</label>
-            <InputField
-              type='text'
-              placeholder=''
-              onChange={update}
-              id={name + '['+qId+']'}
-             name={name + '['+qId+']'}
-            validation='required'/>
-       </p>)
-     }else if (q.questionOptions.rendering==='select') {
-         var choices=self.createChoices(q.questionOptions.answers);
-        fields.push( <p key={key}>
-          <label htmlFor={qId}>{q.label}</label>
-            <SelectField
-              options={choices}
-              type='text'
-              placeholder=''
-              onChange={update}
-              id={name + '['+qId+']'}
-             name={name + '['+qId+']'}
-            validation='required'/>
-       </p>)
-       }else {
-         fields.push(<p key={key}>
-          <label htmlFor={qId}>{q.label}</label>
-            <InputField
-              type='text'
-              placeholder=''
-              onChange={update}
-              id={name + '['+qId+']'}
-             name={name + '['+qId+']'}
-            validation='required'/>
-       </p>)
-       }
+       //q.id = name+'['+q.id+']';
+       fields.push(self.renderQuestion(key,q,name,question.questionOptions.rendering))
     })}
     var person = (
       <div key={personIndex} className='person'>
@@ -126,6 +75,129 @@ export default class App extends Component {
       return newState;
     }, update);
   }
+  renderQuestion(k,question,groupKey,rendering){
+    var questionId = question.id
+    var conceptKey=questionId+'[concept]'
+    var answerKey=questionId+'[answer]'
+    if (groupKey && rendering==='group'){
+      conceptKey=groupKey+'['+question.id+']'+'[concept]'
+      answerKey=groupKey+'['+question.id+']'+'[answer]'
+    }else if (groupKey && rendering==='repeating') {
+      conceptKey=groupKey+'['+question.id+']'+'[concept]'
+      answerKey=groupKey+'['+question.id+']'+'[answer]'
+    }
+    self = this;
+    var update = function() {
+      self.forceUpdate();
+    };
+    var input = '';
+    if(question.questionOptions.rendering==='number'){
+      input = <p key={k}>
+       <label htmlFor={questionId}>{question.label}</label>
+         <InputField
+           type='hidden'
+           placeholder=''
+           onChange={update}
+           id={conceptKey}
+           name={conceptKey}
+           value={question.questionOptions.concept}/>
+         <InputField
+           className="form-control"
+           onChange={update}
+           type='number'
+           placeholder=''
+           id={answerKey}
+           name={answerKey}
+         validation='required'/>
+    </p>
+    }else if (question.questionOptions.rendering==='date') {
+      input = <p key={k}>
+       <label htmlFor={questionId}>{question.label}</label>
+         <InputField
+           type='hidden'
+           placeholder=''
+           onChange={update}
+           id={conceptKey}
+           name={conceptKey}
+           value={question.questionOptions.concept}/>
+         <InputField
+           className="form-control"
+           onChange={update}
+           type='text'
+           placeholder=''
+           id={answerKey}
+           name={answerKey}
+         validation='required'/>
+    </p>
+    }else if (question.questionOptions.rendering==='select') {
+      var choices=self.createChoices(question.questionOptions.answers);
+      input = <p key={k}>
+       <label htmlFor={question.id}>{question.label}</label>
+         <InputField
+           className="form-control"
+           type='hidden'
+           placeholder=''
+           onChange={update}
+           id={conceptKey}
+          name={conceptKey}
+           value={question.questionOptions.concept}/>
+         <SelectField
+           className="form-control"
+           onChange={update}
+           options={choices}
+           type='text'
+           placeholder=''
+           id={answerKey}
+           name={answerKey}
+         validation='required'/>
+    </p>
+    }
+    else if (question.questionOptions.rendering==='multiCheckbox') {
+      var choices=self.createChoices(question.questionOptions.answers);
+      input = <p key={k}>
+       <label htmlFor={questionId}>{question.label}</label>
+         <InputField
+           type='hidden'
+           placeholder=''
+           onChange={update}
+           id={conceptKey}
+           name={conceptKey}
+           value={question.questionOptions.concept}/>
+         <SelectField
+           className="form-control"
+            multiple={true}
+           onChange={update}
+           options={choices}
+           type='text'
+           placeholder=''
+           id={answerKey}
+           name={answerKey}
+         validation='required'/>
+    </p>
+    }
+    else {
+      input = <p key={k}>
+       <label htmlFor={question.id}>{question.label}</label>
+         <InputField
+           type='hidden'
+           placeholder=''
+           onChange={update}
+           id={conceptKey}
+           name={conceptKey}
+           value={question.questionOptions.concept}
+         validation='required'/>
+         <InputField
+           className="form-control"
+           type='text'
+           placeholder=''
+           onChange={update}
+           id={answerKey}
+           name={answerKey}
+         validation='required'/>
+    </p>
+    }
+    return input;
+  }
   serialization() {
         if (this.refs.myForm) {
           return this.refs.myForm.serialize();
@@ -147,84 +219,25 @@ export default class App extends Component {
               event.preventDefault();
             }
   render() {
+    var self = this;
     function renderGroup(question){
-      var self = this;
       var fields = []
       var questionId = question.id
       var personIndex = 'n';
       var personKey = 'questions'+'[' + 0 + ']';
       var name = questionId+'[' + personKey
       var concept = questionId+'[concept]';
+      var groupKey = questionId+'[questions]'
       var moods = [
         { text: 'Happy' , value: 'happy' },
         { text: 'Aloof' , value: 'aloof' }
       ];
 
       question.questions.map(function(q, key) {
-         var qId = q.id;
-         if(q.questionOptions.rendering==='number'){
-         fields.push(<p key={key}>
-            <label htmlFor={qId}>{q.label}</label>
-              <InputField
-                type='number'
-                placeholder=''
-              {...attrs}
-                id={name + '['+qId+']'}
-               name={name + '['+qId+']'}
-              validation='required'/>
-         </p>)
-       }else if (q.questionOptions.rendering==='date') {
-           fields.push(<p key={key}>
-            <label htmlFor={q.id}>{q.label}</label>
-              <InputField
-                type='text'
-                placeholder=''
-                {...attrs}
-                id={name + '['+qId+']'}
-               name={name + '['+qId+']'}
-              validation='required'/>
-         </p>)
-       }else if (q.questionOptions.rendering==='select') {
-           var choices=createChoices(q.questionOptions.answers);
-          fields.push( <p key={key}>
-            <label htmlFor={qId}>{q.label}</label>
-              <SelectField
-                options={choices}
-                type='text'
-                placeholder=''
-                {...attrs}
-                id={name + '['+qId+']'}
-               name={name + '['+qId+']'}
-              validation='required'/>
-         </p>)
-         }
-         else if (q.questionOptions.rendering==='multiCheckbox') {
-           var choices=createChoices(q.questionOptions.answers);
-          fields.push( <p key={key}>
-            <label htmlFor={qId}>{q.label}</label>
-              <SelectField
-                options={choices}
-                 multiple={true}
-                type='text'
-                placeholder=''
-                {...attrs}
-                id={name + '['+qId+']'}
-               name={name + '['+qId+']'}
-              validation='required'/>
-         </p>)
-         }
-         else {
-           fields.push(<p key={key}>
-            <label htmlFor={qId}>{q.label}</label>
-              <InputField
-                type='text'
-                placeholder=''
-                {...attrs}
-                id={name + '['+qId+']'}
-               name={name + '['+qId+']'}
-              validation='required'/>
-         </p>)
-         }
+        var qId = q.id;
+        var name = name + '['+qId+']'
+        q.name = name;
+         fields.push(self.renderQuestion(key,q,groupKey+'['+key+']',question.questionOptions.rendering))
       })
       var person = (
         <div key={personIndex} className='person'>
@@ -241,75 +254,9 @@ export default class App extends Component {
       );
       return person;
     }
-    function renderQuestion(k,question){
-      var input = '';
-      if(question.questionOptions.rendering==='number'){
-        input = <p key={k}>
-         <label htmlFor={question.id}>{question.label}</label>
-           <InputField
-             {...attrs}
-             type='number'
-             placeholder=''
-             id={question.id}
-             name={question.id}
-           validation='required'/>
-      </p>
-      }else if (question.questionOptions.rendering==='date') {
-        input = <p key={k}>
-         <label htmlFor={question.id}>{question.label}</label>
-           <InputField
-             {...attrs}
-             type='text'
-             placeholder=''
-             id={question.id}
-             name={question.id}
-           validation='required'/>
-      </p>
-      }else if (question.questionOptions.rendering==='select') {
-        var choices=createChoices(question.questionOptions.answers);
-        input = <p key={k}>
-         <label htmlFor={question.id}>{question.label}</label>
-           <SelectField
-             {...attrs}
-             options={choices}
-             type='text'
-             placeholder=''
-             id={question.id}
-             name={question.id}
-           validation='required'/>
-      </p>
-      }
-      else if (question.questionOptions.rendering==='multiCheckbox') {
-        console.log('Multi')
-        var choices=createChoices(question.questionOptions.answers);
-        input = <p key={k}>
-         <label htmlFor={question.id}>{question.label}</label>
-           <SelectField
-              multiple={true}
-             {...attrs}
-             options={choices}
-             type='text'
-             placeholder=''
-             id={question.id}
-             name={question.id}
-           validation='required'/>
-      </p>
-      }
-      else {
-        input = <p key={k}>
-         <label htmlFor={question.id}>{question.label}</label>
-           <InputField
-             {...attrs}
-             type='text'
-             placeholder=''
-             id={question.id}
-             name={question.id}
-           validation='required'/>
-      </p>
-      }
-      return input;
-    }
+
     function renderObsGroup(k,question) {
+
       console.log(question);
     }
     function createChoices(answers){
@@ -331,16 +278,19 @@ export default class App extends Component {
        };
     return (
       <BasicForm ref='myForm' onKeyUp={this.onChange} onSubmit={this.onSubmit}>
+          <div className='container' >
+        <div className='row' >
+      <div className='col-md-8' >
       <Tabs>
         {form.pages.map(function(page, i) {
         return (
           <Tabs.Panel key={i} title={page.label}>
-          <div >
+          <div  >
             {page.sections.map(function(section, j) {
               return (<div key={j}>{section.label}
                 {section.questions.map(function(question, k) {
                   if(question.type==='obs'){
-                    return (renderQuestion(k,question));
+                    return (self.renderQuestion(k,question));
                   }else if(question.type==='encounterDatetime'){
                     return (<div key={k}></div>);
                   }else if (question.type==='encounterProvider') {
@@ -351,12 +301,13 @@ export default class App extends Component {
                  }else if (question.type==='personAttribute') {
                    return (<div key={k}></div>);
                  }else if (question.type==='obsGroup' && question.questionOptions.rendering==='group') {
-                    return (<div key={k}>Group
+                    return (<div  key={k}>
                         {renderGroup(question)}
                     </div>)
                   }else if (question.type==='obsGroup' && question.questionOptions.rendering==='repeating') {
-                    return (<div key={k}>Repeating Group
-                      <button onClick={()=>self.addRepeating(question)} type='button'>Add</button>
+                    return (<div className='well' key={k}>
+                      <h2>{question.label}</h2>
+                      <button className='btn btn-primary' onClick={()=>self.addRepeating(question)} type='button'>Add</button>
                       {
                         self.state['added'+ question.id].map(function(person) {
                         return person;
@@ -373,11 +324,14 @@ export default class App extends Component {
         );
       })}
     </Tabs>
-      <div className='serialization'>
+  </div>
+      <div className='col-md-4'>
              <pre>
                {serialization}
              </pre>
            </div>
+         </div>
+       </div>
       </BasicForm>
     );
   }
