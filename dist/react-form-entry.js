@@ -126,7 +126,8 @@ var ReactFormEntry =
 	    };
 	  },
 	  propTypes: {
-	    form: React.PropTypes.object.isRequired
+	    form: React.PropTypes.object.isRequired,
+	    submit: React.PropTypes.func.isRequired
 	  },
 	  createChoices: function createChoices(answers) {
 	    var choices = [];
@@ -350,14 +351,15 @@ var ReactFormEntry =
 	  onSubmit: function onSubmit(event) {
 	    var self = this;
 	    console.log('Submitted. Checking async errors.');
+	    this.props.submit(this.refs.myForm.serialize());
 	    this.refs.myForm.validate(function (errs) {
 	      if (errs) {
 	        alert('There are ' + errs.length + ' errors.');
 	        alert('Check out your console to see them.');
-	        console.log(errs);
+	        //console.log(errs);
 	        return;
 	      }
-	      alert('All passed! No errors.');
+	      this.props.submit(this.refs.myForm.serialize());
 	    });
 	    event.preventDefault();
 	  },
@@ -537,7 +539,12 @@ var ReactFormEntry =
 	                    })
 	                  )
 	                );
-	              })
+	              }),
+	              React.createElement(
+	                'button',
+	                { className: 'btn btn-primary', onClick: this.onSubmit },
+	                'Submit'
+	              )
 	            ),
 	            React.createElement(
 	              'div',

@@ -5,9 +5,11 @@ import FormEntry from './components/FormEntry'
 export default class App extends Component {
 
   render() {
-
+     function submitted(data) {
+       console.log(data)
+    }
     return (
-      <FormEntry form={form}/>
+      <FormEntry form={form} submit={submitted}/>
     );
   }
 }
