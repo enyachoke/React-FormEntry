@@ -1,7 +1,11 @@
 var React = require('react');
 var ReactDOM = require('react-dom');
 import Immutable from 'immutable';
-import AutoCompleteField from './AutoCompleteField'
+import MultiSelectField from './fields/MultiSelectField'
+import DropdownListField from './fields/DropdownListField'
+import DateField from './fields/DateField'
+import 'react-widgets/lib/less/react-widgets.less'
+import Multiselect from 'react-widgets/lib/Multiselect'
 var _ = require('lodash');
 import {
   BasicForm,
@@ -29,9 +33,8 @@ var FormEntry = React.createClass( {
     for (i = 0; i < answers.length; i++) {
       var answer = answers[i];
       choices.push({
-        id: answer.concept,
-        name: answer.label,
-        size: "Large"
+        uuid: answer.concept,
+        name: answer.label
       });
     }
     return choices;
@@ -124,7 +127,7 @@ var FormEntry = React.createClass( {
          validation='required'/>
     </p>
     }else if (question.questionOptions.rendering==='date') {
-      input = <p key={k}>
+      input = <div key={k}>
        <label htmlFor={questionId}>{question.label}</label>
          <InputField
            type='hidden'
@@ -133,18 +136,17 @@ var FormEntry = React.createClass( {
            id={conceptKey}
            name={conceptKey}
            value={question.questionOptions.concept}/>
-         <InputField
-           className="form-control"
-           onChange={update}
-           type='text'
-           placeholder=''
+           <DateField
            id={answerKey}
-           name={answerKey}
-         validation='required'/>
-    </p>
+            name={answerKey}
+          validation='required'
+          format={'DD-MM-Y'}
+          defaultValue={null}
+          onChange={update}/>
+    </div>
     }else if (question.questionOptions.rendering==='select') {
       //use https://github.com/JedWatson/react-select
-      var choices=[{text:'Please select',value:''}].concat(self.createChoices(question.questionOptions.answers));
+      var choices=self.createChoices(question.questionOptions.answers);
       input = <div key={k}>
        <label htmlFor={question.id}>{question.label}</label>
          <InputField
@@ -154,16 +156,17 @@ var FormEntry = React.createClass( {
            id={conceptKey}
            name={conceptKey}
            value={question.questionOptions.concept}/>
-         <AutoCompleteField
-           id={answerKey}
-           onChange={update}
-           searchable={true}
-           dataSource={choices}
-           name={answerKey} validation='required'/>
+         <DropdownListField
+         name= {answerKey}
+         textField='name'
+         valueField='uuid'
+         id={answerKey}
+         defaultValue={[]}
+         onChange={update}
+         data={choices} validation='required' />
        </div>
     }
     else if (question.questionOptions.rendering==='multiCheckbox') {
-      //use https://github.com/JedWatson/react-select
       var choices=self.createChoices(question.questionOptions.answers);
       input = <div key={k}>
        <label htmlFor={questionId}>{question.label}</label>
@@ -174,13 +177,14 @@ var FormEntry = React.createClass( {
            id={conceptKey}
            name={conceptKey}
            value={question.questionOptions.concept}/>
-           <AutoCompleteField
-             id={answerKey}
-             onChange={update}
-             searchable={true}
-             tags={true}
-             dataSource={choices}
-             name={answerKey} validation='required'/>
+           <MultiSelectField
+            name= {answerKey}
+            textField='name'
+            valueField='uuid'
+            id={answerKey}
+            defaultValue={[]}
+            onChange={update}
+            data={choices} validation='required' />
          </div>
     }
     else {
@@ -308,18 +312,7 @@ onSubmit: function(event) {
       },
       message: 'Password Does not much'
     });
-    var testData = [
-    {
-      "id": "5507c0528152e61f3c348d56",
-      "name": "elit laborum et",
-      "size": "Large"
-    },
-    {
-      "id": "5507c0526305bceb0c0e2c7a",
-      "name": "dolor nulla velit",
-      "size": "Medium"
-    }
-    ];
+    var testData = ['orange','red','blue'];
     return (
       <div>
       <BasicForm ref='myForm' onKeyUp={this.onChange} onSubmit={this.onSubmit}>

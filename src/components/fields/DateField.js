@@ -1,23 +1,21 @@
 import React from 'react';
 import {InputBase} from 'react-serial-forms';
-import Select from 'react-select';
-export default class AutoCompleteField extends InputBase {
+import 'react-widgets/lib/less/react-widgets.less'
+import DateTimePicker from 'react-widgets/lib/DateTimePicker'
+import Moment from 'moment'
+import momentLocalizer from 'react-widgets/lib/localizers/moment'
+momentLocalizer(Moment)
+
+export default class DateField extends InputBase {
   constructor(props) {
     super(props);
   }
   onChange(event) {
-    if(Array.isArray(event)){
-      var selected = [];
-      for (var i in event) {
-        selected.push(event[i].value)
+      console.log(event)
+      this.updateValue(new Date(event));
+      if (typeof this.props.onChange === 'function') {
+        this.props.onChange(new Date(event));
       }
-      this.updateValue(selected);
-    }else {
-      this.updateValue(event.value);
-    }
-    if (typeof this.props.onChange === 'function') {
-      this.props.onChange(event);
-    }
   }
   render() {
     let errMessage = <span />;
@@ -34,13 +32,12 @@ export default class AutoCompleteField extends InputBase {
         <span className='err-msg'>
           {this.state.error.message}
         </span>
-      );
-    }
+      );}
     return (
-      <span className='serial-input-wrapper'>
-        <Select {...attrs}/>
+      <div>
+        <DateTimePicker {...attrs}/>
         {errMessage}
-      </span>
+      </div>
     );
   }
 }
