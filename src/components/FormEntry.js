@@ -1,11 +1,16 @@
-import React from 'react';
+var React = require('react');
+var ReactDOM = require('react-dom');
 import Immutable from 'immutable';
+import AutoCompleteField from './AutoCompleteField'
+var _ = require('lodash');
 import {
   BasicForm,
   InputField,
   SelectField,
   TextareaField
 } from 'react-serial-forms'
+import { validation } from 'react-serial-forms';
+var validations = [{name:'confirmpass',operator:'===',reference:'password'}]
 var FormEntry = React.createClass( {
   getInitialState: function() {
         return {
@@ -23,7 +28,11 @@ var FormEntry = React.createClass( {
     var i;
     for (i = 0; i < answers.length; i++) {
       var answer = answers[i];
-      choices.push({text: answer.label, value: answer.concept});
+      choices.push({
+        id: answer.concept,
+        name: answer.label,
+        size: "Large"
+      });
     }
     return choices;
   },
@@ -136,31 +145,27 @@ var FormEntry = React.createClass( {
     }else if (question.questionOptions.rendering==='select') {
       //use https://github.com/JedWatson/react-select
       var choices=[{text:'Please select',value:''}].concat(self.createChoices(question.questionOptions.answers));
-      input = <p key={k}>
+      input = <div key={k}>
        <label htmlFor={question.id}>{question.label}</label>
          <InputField
-           className="form-control"
            type='hidden'
            placeholder=''
            onChange={update}
            id={conceptKey}
-          name={conceptKey}
+           name={conceptKey}
            value={question.questionOptions.concept}/>
-         <SelectField
-           className="form-control"
-           onChange={update}
-           options={choices}
-           type='text'
-           placeholder=''
+         <AutoCompleteField
            id={answerKey}
-           name={answerKey}
-         validation='required'/>
-    </p>
+           onChange={update}
+           searchable={true}
+           dataSource={choices}
+           name={answerKey} validation='required'/>
+       </div>
     }
     else if (question.questionOptions.rendering==='multiCheckbox') {
       //use https://github.com/JedWatson/react-select
       var choices=self.createChoices(question.questionOptions.answers);
-      input = <p key={k}>
+      input = <div key={k}>
        <label htmlFor={questionId}>{question.label}</label>
          <InputField
            type='hidden'
@@ -169,17 +174,14 @@ var FormEntry = React.createClass( {
            id={conceptKey}
            name={conceptKey}
            value={question.questionOptions.concept}/>
-         <SelectField
-           className="form-control"
-            multiple={true}
-           onChange={update}
-           options={choices}
-           type='text'
-           placeholder=''
-           id={answerKey}
-           name={answerKey}
-         validation='required'/>
-    </p>
+           <AutoCompleteField
+             id={answerKey}
+             onChange={update}
+             searchable={true}
+             tags={true}
+             dataSource={choices}
+             name={answerKey} validation='required'/>
+         </div>
     }
     else {
       input = <p key={k}>
@@ -269,6 +271,19 @@ onSubmit: function(event) {
     var self = this;
        var serialization = JSON.stringify(this.serialization(), null, 2);
     // For the sake of this demo, update the json all the time.
+    function findDeep(obj, keyToFind) {
+    var result = null;
+
+    _.find(obj, function (value, key) {
+        if (key === keyToFind) {
+            return result = value;
+        } else if (_.isObject(value) && !_.isFunction(value)) {
+            return result = findDeep(value, keyToFind);
+        }
+    });
+
+    return result;
+}
     var attrs = {
          onChange: function() {
           self.forceUpdate();
@@ -277,12 +292,44 @@ onSubmit: function(event) {
        if(_.isEmpty(this.props.form)){
          return null
        }
+       validation.registerValidator({
+      name: 'confirmpass',
+      determine: function(value, pass, fail) {
+        var data = self.serialization();
+        var otherValue = findDeep(data,'password')
+        console.log(findDeep(data,'q12e').answer)
+        console.log('Value',value)
+        console.log('otherValue',otherValue)
+        if(value===otherValue){
+          return pass();
+        }else{
+          return fail();
+        }
+      },
+      message: 'Password Does not much'
+    });
+    var testData = [
+    {
+      "id": "5507c0528152e61f3c348d56",
+      "name": "elit laborum et",
+      "size": "Large"
+    },
+    {
+      "id": "5507c0526305bceb0c0e2c7a",
+      "name": "dolor nulla velit",
+      "size": "Medium"
+    }
+    ];
     return (
       <div>
       <BasicForm ref='myForm' onKeyUp={this.onChange} onSubmit={this.onSubmit}>
       <div className='container' >
         <div className='row' >
           <div className='col-md-6' >
+            <label>password:</label>
+        <InputField type='text' {...attrs}  name='password' />
+          <label>confirm:</label>
+        <InputField type='text' {...attrs}  validation='confirmpass' name='confirmPassword' />
         {this.props.form.pages.map(function(page, i) {
         return (
           <div key={i}>

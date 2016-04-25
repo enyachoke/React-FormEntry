@@ -48,9 +48,11 @@
   "dependencies": {
     "immutable": "^3.8.1",
     "json-loader": "^0.5.4",
+    "lodash": "^4.11.1",
     "react": "^15.0.1",
     "react-dom": "^15.0.1",
-    "react-serial-forms": "^2.0.5"
+    "react-serial-forms": "^2.0.5",
+    "react-super-select": "^0.4.1"
   },
   "browserify": {
     "transform": [
