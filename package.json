@@ -50,6 +50,7 @@
     "json-loader": "^0.5.4",
     "react": "^15.0.1",
     "react-dom": "^15.0.1",
+    "react-select": "^1.0.0-beta11",
     "react-serial-forms": "^2.0.5"
   },
   "browserify": {

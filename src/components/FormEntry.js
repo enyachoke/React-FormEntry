@@ -1,5 +1,6 @@
 import React from 'react';
 import Immutable from 'immutable';
+import AutoCompleteField from './fields/AutoCompleteField';
 import {
   BasicForm,
   InputField,
@@ -277,6 +278,10 @@ onSubmit: function(event) {
        if(_.isEmpty(this.props.form)){
          return null
        }
+       var options = [
+    { value: 'one', label: 'One' },
+    { value: 'two', label: 'Two' }
+];
     return (
       <div>
       <BasicForm ref='myForm' onKeyUp={this.onChange} onSubmit={this.onSubmit}>
